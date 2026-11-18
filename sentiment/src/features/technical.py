@@ -114,7 +114,7 @@ def compute_technical_indicators(df: pd.DataFrame) -> pd.DataFrame:
                 rename[col] = "OBV"
             elif cu == "AD":
                 rename[col] = "AD"
-            elif cu.startswith("ATR_14"):
+            elif cu.startswith("ATR") and "14" in cu and "MACD" not in cu:
                 rename[col] = "ATR"
         df = df.rename(columns=rename)
     else:

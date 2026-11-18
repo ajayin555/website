@@ -20,7 +20,7 @@ def _find_project_root() -> Path:
 
 
 def _normalize_name(name: str) -> str:
-    return name.replace("Nifty ", "").replace(" ", "_")
+    return name.strip().replace(" ", "_")
 
 
 def build_feature_matrix(

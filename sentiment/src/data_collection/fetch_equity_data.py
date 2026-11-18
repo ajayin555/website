@@ -29,8 +29,7 @@ def _find_project_root() -> Path:
 
 
 def _normalize_sector_name(name: str) -> str:
-    name = name.replace("Nifty ", "").strip()
-    return name.replace(" ", "_")
+    return name.strip().replace(" ", "_")
 
 
 def _ns_ticker(raw: str) -> str:
