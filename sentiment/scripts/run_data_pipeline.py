@@ -32,6 +32,9 @@ def main() -> None:
     parser.add_argument("--end", default=None, help="Override end date (YYYY-MM-DD)")
     parser.add_argument("--force", action="store_true",
                         help="Re-download even if parquet files exist")
+    parser.add_argument("--live-scrape", action="store_true",
+                        help="Attempt live ET RSS scraping for recent dates (last 30 days); "
+                             "historical dates always use synthetic data")
     args = parser.parse_args()
 
     stages = [args.stage] if args.stage else STAGES
@@ -53,7 +56,7 @@ def main() -> None:
 
     if "sentiment" in stages:
         logger.info("=== Stage: sentiment ===")
-        result = fetch_sentiment_data.run(start=args.start, end=args.end)
+        result = fetch_sentiment_data.run(start=args.start, end=args.end, live_scrape=args.live_scrape)
         logger.info("Sentiment built for %d assets", len(result))
 
     logger.info("Data pipeline finished for stage(s): %s", stages)

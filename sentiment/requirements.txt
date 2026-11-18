@@ -33,7 +33,7 @@ riskfolio-lib
 
 # Evaluation / stats
 statsmodels
-empyrical
+quantstats
 
 # Viz
 matplotlib
