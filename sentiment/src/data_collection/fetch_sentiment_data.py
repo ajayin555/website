@@ -154,7 +154,14 @@ def run(
     assets: list[str] | None = None,
     start: str | None = None,
     end: str | None = None,
+    live_scrape: bool = False,
 ) -> dict[str, pd.DataFrame]:
+    """Generate sentiment data for all sector assets.
+
+    By default uses synthetic data for the full historical window (fast, ~seconds).
+    Pass live_scrape=True to attempt Economic Times RSS scraping for recent dates only
+    (last 30 calendar days); historical dates always fall back to synthetic data.
+    """
     root = _find_project_root()
     config = load_config(root / "config" / "config.yaml")
     assets_cfg = load_config(root / "config" / "assets.yaml")
@@ -170,19 +177,19 @@ def run(
         assets = [s["name"] for s in sectors]
 
     trading_days = pd.bdate_range(effective_start, effective_end)
+    live_cutoff = pd.Timestamp.now() - pd.Timedelta(days=30)
     rng = np.random.default_rng(42)
     result: dict[str, pd.DataFrame] = {}
 
     for asset in assets:
         out_path = root / "data" / "raw" / "sentiment" / f"{asset.replace(' ', '_')}.parquet"
-        rows = []
         entity_query = asset.replace("Nifty ", "").strip()
+        rows = []
 
         for day in trading_days:
-            date_str = day.strftime("%Y-%m-%d")
-            headlines = scrape_headlines(entity_query, date_str)
-            if headlines:
-                scores = score_with_finbert(headlines, entity_query)
+            if live_scrape and day >= live_cutoff:
+                headlines = scrape_headlines(entity_query, day.strftime("%Y-%m-%d"))
+                scores = score_with_finbert(headlines, entity_query) if headlines else _synthetic_row(rng)
             else:
                 scores = _synthetic_row(rng)
             rows.append({"date": day, **scores})
@@ -192,6 +199,6 @@ def run(
         df.index.name = "Date"
         save_parquet(df, out_path)
         result[asset] = df
-        logger.info("Sentiment saved for %s (%d rows)", asset, len(df))
+        logger.info("Sentiment saved for %s (%d rows, mode=%s)", asset, len(df), "live+synthetic" if live_scrape else "synthetic")
 
     return result
