@@ -1,13 +1,11 @@
 # Candidate Indian asset universe, mirroring the original paper's 9 sectoral ETFs + 12
 # commodity futures (4 energy, 4 metal, 4 agri).
 #
-# Sectoral constituent lists were pulled live (Sep 2026) from NSE-indices-derived
-# sources (niftyindices.com factsheets via smart-investing.in / tickertape.in
-# mirrors) and are current as of that date, listed by index weight. These are
-# CURRENT constituents — for a backtest starting in 2014-2017 you will also need
-# point-in-time membership (index reconstitution happens semi-annually, Jan/Jul
-# cut-offs) to avoid survivorship bias; see the note in
-# src/data_collection/fetch_equity_data.py.
+# Sectoral constituent lists verified against official NSE Indices CSV downloads
+# (niftyindices.com) as of Nov 2026. These are CURRENT constituents — for a
+# backtest starting in 2014-2017 you will also need point-in-time membership
+# (index reconstitution happens semi-annually, Jan/Jul cut-offs) to avoid
+# survivorship bias; see the note in src/data_collection/fetch_equity_data.py.
 
 sectoral:
   # SELF-BUILT: rather than relying on a licensed index feed or a thinly-traded
@@ -19,41 +17,41 @@ sectoral:
   rebalance_weights: "semi-annual (Jan 31 / Jul 31 cutoffs), free-float market-cap weighted, matching NSE's own sectoral index methodology"
   sectors:
   - name: "Nifty Bank"
-    weighting_note: "full 14-stock index, as of 2026-09-23"
+    weighting_note: "full 14-stock index, as of 2026-11-18 (from official NSE CSV)"
     constituents: [HDFCBANK, ICICIBANK, SBIN, KOTAKBANK, AXISBANK, UNIONBANK, PNB, BANKBARODA, CANBK, FEDERALBNK, AUBANK, IDFCFIRSTB, INDUSINDBK, YESBANK]
     etf_proxy: "BANKBEES.NS"
   - name: "Nifty IT"
-    weighting_note: "full 10-stock index, as of 2026-09-23"
+    weighting_note: "full 10-stock index, as of 2026-11-18 (from official NSE CSV)"
     constituents: [INFY, TCS, HCLTECH, TECHM, COFORGE, PERSISTENT, WIPRO, LTM, MPHASIS, OFSS]  # LTM = LTIMindtree's yfinance ticker (not "LTIM")
     etf_proxy: "ITBEES.NS"
   - name: "Nifty FMCG"
-    weighting_note: "full 15-stock index, as of 2026-09-23"
-    constituents: [ITC, HINDUNILVR, NESTLEIND, TATACONSUM, VBL, BRITANNIA, MARICO, UNITDSPR, RADICO, GODREJCP, DABUR, COLPAL, PATANJALI, UBL, EMAMILTD]
+    weighting_note: "full 15-stock index, as of 2026-11-18 (from official NSE CSV)"
+    constituents: [ITC, HINDUNILVR, NESTLEIND, TATACONSUM, VBL, BRITANNIA, MARICO, UNITDSPR, RADICO, GODREJCP, DABUR, COLPAL, PATANJALI, UBL, GODFRYPHLP]
     etf_proxy: null
   - name: "Nifty Pharma"
-    weighting_note: "full 20-stock index, as of 2026-09-23"
+    weighting_note: "full 20-stock index, as of 2026-11-18 (from official NSE CSV)"
     constituents: [SUNPHARMA, DIVISLAB, TORNTPHARM, ZYDUSLIFE, CIPLA, LAURUSLABS, MANKIND, DRREDDY, AUROPHARMA, LUPIN, GLENMARK, ALKEM, BIOCON, ABBOTINDIA, IPCALAB, GLAND, AJANTPHARM, WOCKPHARMA, SAILIFE, PPLPHARMA]  # SAILIFE = Sai Life Sciences (IPO'd 2025, short history); PPLPHARMA = Piramal Pharma
     etf_proxy: "PHARMABEES.NS"
   - name: "Nifty Auto"
-    weighting_note: "full 15-stock index, as of 2026-09-23"
-    constituents: [M&M, MARUTI, "BAJAJ-AUTO", EICHERMOT, TVSMOTOR, MOTHERSON, ASHOKLEY, HEROMOTOCO, TMPV, BHARATFORG, BOSCHLTD, SONACOMS, TIINDIA, UNOMINDA, EXIDEIND]
+    weighting_note: "full 15-stock index, as of 2026-11-18 (from official NSE CSV)"
+    constituents: [M&M, MARUTI, "BAJAJ-AUTO", EICHERMOT, TVSMOTOR, MOTHERSON, ASHOKLEY, HEROMOTOCO, TMPV, BHARATFORG, BOSCHLTD, SONACOMS, TIINDIA, UNOMINDA, HYUNDAI]
     note: "Tata Motors was renamed Tata Motors Passenger Vehicles (ticker TMPV) at the Oct 2025 demerger, carrying its full price history since the old TATAMOTORS ticker was retired on Yahoo Finance — verified TMPV.NS has continuous data back to 2014. The new commercial-vehicle spinoff (TMCV, listed Nov 2025) is a separate, much shorter series and is NOT included here."
     etf_proxy: null
-  - name: "Nifty Energy"
-    weighting_note: "PARTIAL — index has 40 constituents (oil/gas + power + capital goods); listing only the largest weights actually confirmed. Verify the rest from the official factsheet before finalizing."
-    constituents: [RELIANCE, ADANIPOWER, NTPC, ONGC, COALINDIA, POWERGRID, ADANIGREEN, IOC]
+  - name: "Nifty Oil & Gas"
+    weighting_note: "full 15-stock index, as of 2026-11-18 (from official NSE CSV); replaces earlier partial 'Nifty Energy' entry — Nifty Oil & Gas is a tighter, more liquid analogue to XLE (the original paper's US energy proxy)"
+    constituents: [RELIANCE, ONGC, IOC, BPCL, GAIL, HINDPETRO, PETRONET, ATGL, IGL, MGL, OIL, CASTROLIND, AEGISLOG, AEGISVOPAK, CHENNPETRO]
     etf_proxy: null
   - name: "Nifty Metal"
-    weighting_note: "12 of ~15 constituents confirmed, as of 2026-08-13"
-    constituents: [ADANIENT, JSWSTEEL, HINDZINC, HINDALCO, TATASTEEL, JINDALSTEL, VEDL, LLOYDSME, NATIONALUM, NMDC, SAIL, JSL]
+    weighting_note: "full 15-stock index, as of 2026-11-18 (from official NSE CSV)"
+    constituents: [ADANIENT, JSWSTEEL, HINDZINC, HINDALCO, TATASTEEL, JINDALSTEL, VEDL, LLOYDSME, NATIONALUM, NMDC, SAIL, JSL, APLAPOLLO, HINDCOPPER, VAML]
     etf_proxy: null
   - name: "Nifty Realty"
-    weighting_note: "full 10-stock index, as of 2026-08-03"
-    constituents: [DLF, LODHA, PRESTIGE, PHOENIXLTD, OBEROIRLTY, GODREJPROP, ANANTRAJ, BRIGADE, SOBHA]
+    weighting_note: "full 10-stock index, as of 2026-11-18 (from official NSE CSV)"
+    constituents: [DLF, LODHA, PRESTIGE, PHOENIXLTD, OBEROIRLTY, GODREJPROP, ANANTRAJ, BRIGADE, SOBHA, ABREL]
     etf_proxy: null
   - name: "Nifty Financial Services"
-    weighting_note: "full 20-stock index (FINNIFTY 25/50), as of 2026-09-23"
-    constituents: [HDFCBANK, ICICIBANK, SBIN, BAJFINANCE, KOTAKBANK, AXISBANK, BAJAJFINSV, SHRIRAMFIN, SBILIFE, JIOFIN, CHOLAFIN, BSE, HDFCLIFE, MUTHOOTFIN, PFC, RECLTD, ICICIGI, ICICIPRULI, SBICARD, LICHSGFIN]
+    weighting_note: "full 20-stock index (FINNIFTY 25/50), as of 2026-11-18 (from official NSE CSV)"
+    constituents: [HDFCBANK, ICICIBANK, SBIN, BAJFINANCE, KOTAKBANK, AXISBANK, BAJAJFINSV, SHRIRAMFIN, SBILIFE, JIOFIN, CHOLAFIN, BSE, HDFCLIFE, MUTHOOTFIN, PFC, RECLTD, ICICIGI, MFSL, SBICARD, LICHSGFIN]
     note: "Heavy overlap with Nifty Bank (HDFCBANK, ICICIBANK, SBIN, KOTAKBANK, AXISBANK appear in both) — expect high correlation between the Sect+Bank and Sect+FinServices legs; consider whether the original paper's 9-sector orthogonality assumption still holds for India."
     etf_proxy: null
 
