@@ -1,0 +1,31 @@
+# Indicator definitions replicated from the original paper (Tables B.1 and B.2).
+
+technical_indicators:
+  - SMA_14      # 14-period simple moving average
+  - EMA_14      # 14-period exponential moving average
+  - RSI         # Relative Strength Index
+  - CCI         # Commodity Channel Index
+  - MFI         # Money Flow Index
+  - ROC         # Rate of Change
+  - Williams_R  # Williams %R
+  - OBV         # On-Balance Volume
+  - AD          # Accumulation/Distribution
+  - MACD        # Moving Average Convergence Divergence
+  - ATR         # Average True Range
+
+sentiment_indicators:
+  # From LSEG MarketPsych (or equivalent NLP pipeline scoring Indian financial news/social media)
+  - Buzz              # intensity of entity-specific discussion
+  - Mentions           # frequency of entity name occurrences
+  - Emotion_vs_Fact     # emotional language relative to factual reporting
+  - Sentiment           # net positive tone
+  - Optimism            # forward-looking positive expectations
+  - Pessimism           # forward-looking negative expectations
+  - Volatility_lang      # language reflecting instability/turbulence
+  - Uncertainty          # expressions of doubt/ambiguity
+  - Fear                 # language indicating anxiety/risk aversion
+
+# Total feature count per asset should match the original paper: OHLCV-derived return +
+# 11 technical + 9 sentiment = 21 features feeding into a 25-variable dataset once
+# additional derived/lag features are included — confirm exact composition during
+# feature-matrix implementation.

@@ -1,0 +1,51 @@
+# Global configuration — placeholders to be finalized once data availability is confirmed.
+
+project:
+  name: sentiment-forecast-portfolio-india
+  base_currency: INR
+
+regimes:
+  # Mirror the original paper's design: a high-volatility regime and a normal regime,
+  # each with an in-sample training window and an out-of-sample test window.
+  # TODO: finalize using India VIX + Nifty/commodity realized volatility history.
+  high_volatility:
+    full_sample_start: "2014-07-01"   # placeholder, align with earliest reliable MCX/NSE history
+    full_sample_end: "2022-12-31"
+    test_start: "2020-01-01"          # e.g. capture COVID crash + 2018 IL&FS/NBFC stress if extended back
+    test_end: "2022-12-31"
+  normal:
+    full_sample_start: "2017-07-01"
+    full_sample_end: "2025-12-31"
+    test_start: "2023-01-01"
+    test_end: "2025-12-31"
+
+forecasting:
+  target: next_day_return
+  batch_size: 64
+  max_epochs: 100
+  early_stopping_patience: 20
+  optuna_trials: 50
+  cv_scheme: time_series_split
+
+portfolio:
+  n_assets_per_portfolio: 6
+  max_weight_per_asset: 0.30
+  long_only: true
+  transaction_cost_bps: 5
+  rebalancing_frequency: daily
+  confidence_level: 0.95        # for CVaR, CDaR, EVaR
+  suspend_if_all_negative_forecast: true
+
+black_litterman:
+  tau: 0.05
+  risk_aversion_delta: 1.0
+  view_confidence: 0.99
+  market_weight_proxy_for_futures: normalized_avg_dollar_volume
+
+risk_free_rate:
+  source: "91-day Government of India T-bill"
+  # TODO: point to actual data file/API once fetched
+  path: data/raw/macro/india_tbill_91d.csv
+
+benchmark:
+  index: "NIFTY50"   # alternative: SENSEX

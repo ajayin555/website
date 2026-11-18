@@ -1,0 +1,42 @@
+# Hyperparameter search spaces, replicated from the original paper (Table B.3).
+# Tune with Optuna + time-series cross-validation; DL models use dropout, early
+# stopping (patience=20), and gradient clipping.
+
+LR:
+  note: "Standard linear regression, no hyperparameter search."
+
+RF:
+  n_estimators: [50, 1000]
+  max_depth: [3, 30]
+  min_samples_split: [2, 10]
+  min_samples_leaf: [1, 10]
+  max_features: ["sqrt", "log2", null]
+  bootstrap: [true, false]
+
+SVR:
+  C: [0.1, 1000]        # log-uniform
+  gamma: [0.0001, 1]    # log-uniform
+  epsilon: [0.001, 1]
+  kernel: ["linear", "rbf", "poly"]
+
+recurrent_models:  # GRU, LSTM, BiGRU, BiLSTM
+  units: [50, 100, 150, 200, 250]
+  n_layers: [1, 3]
+  dropout: [0.1, 0.2, 0.3]
+  optimizer: ["adam", "sgd", "rmsprop"]
+  loss: ["huber", "mse"]
+  learning_rate: [0.0001, 0.01]   # log-uniform
+
+hybrid_models:  # GRU-LSTM, BiGRU-GRU
+  first_layer_units: [50, 100, 150, 200, 250]
+  second_layer_units: [50, 100, 150, 200, 250]
+  dropout: [0.1, 0.2, 0.3]
+  optimizer: ["adam", "sgd", "rmsprop"]
+  loss: ["huber", "mse"]
+  learning_rate: [0.0001, 0.01]
+
+training:
+  batch_size: 64
+  max_epochs: 100
+  early_stopping_patience: 20
+  gradient_clipping: true
