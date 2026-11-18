@@ -1,0 +1,50 @@
+# Data acquisition
+yfinance
+nsepy
+nsetools
+requests
+beautifulsoup4
+
+# Data handling
+pandas
+numpy
+pyarrow
+
+# Technical indicators
+ta
+pandas-ta
+
+# NLP / sentiment (if self-building sentiment instead of a licensed feed)
+transformers
+torch
+sentencepiece
+
+# ML / DL forecasting
+scikit-learn
+tensorflow
+keras
+optuna
+
+# Portfolio optimization
+PyPortfolioOpt
+scipy
+cvxpy
+riskfolio-lib
+
+# Evaluation / stats
+statsmodels
+empyrical
+
+# Viz
+matplotlib
+seaborn
+plotly
+
+# Notebooks / utils
+jupyter
+pyyaml
+tqdm
+python-dotenv
+
+# Testing
+pytest

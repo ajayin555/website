@@ -1,0 +1,149 @@
+# Candidate Indian asset universe, mirroring the original paper's 9 sectoral ETFs + 12
+# commodity futures (4 energy, 4 metal, 4 agri).
+#
+# Sectoral constituent lists were pulled live (Sep 2026) from NSE-indices-derived
+# sources (niftyindices.com factsheets via smart-investing.in / tickertape.in
+# mirrors) and are current as of that date, listed by index weight. These are
+# CURRENT constituents — for a backtest starting in 2014-2017 you will also need
+# point-in-time membership (index reconstitution happens semi-annually, Jan/Jul
+# cut-offs) to avoid survivorship bias; see the note in
+# src/data_collection/fetch_equity_data.py.
+
+sectoral:
+  # SELF-BUILT: rather than relying on a licensed index feed or a thinly-traded
+  # sector ETF, each sector "asset" is constructed in-house as a market-cap-weighted
+  # basket of its constituent stocks, priced from raw NSE-listed stock OHLCV.
+  # `etf_proxy` is kept only as an optional sanity-check series (correlation/return
+  # comparison), never as the primary data source.
+  construction_method: self_built_constituent_basket
+  rebalance_weights: "semi-annual (Jan 31 / Jul 31 cutoffs), free-float market-cap weighted, matching NSE's own sectoral index methodology"
+  sectors:
+  - name: "Nifty Bank"
+    weighting_note: "full 14-stock index, as of 2026-09-23"
+    constituents: [HDFCBANK, ICICIBANK, SBIN, KOTAKBANK, AXISBANK, UNIONBANK, PNB, BANKBARODA, CANBK, FEDERALBNK, AUBANK, IDFCFIRSTB, INDUSINDBK, YESBANK]
+    etf_proxy: "BANKBEES.NS"
+  - name: "Nifty IT"
+    weighting_note: "full 10-stock index, as of 2026-09-23"
+    constituents: [INFY, TCS, HCLTECH, TECHM, COFORGE, PERSISTENT, WIPRO, LTM, MPHASIS, OFSS]  # LTM = LTIMindtree's yfinance ticker (not "LTIM")
+    etf_proxy: "ITBEES.NS"
+  - name: "Nifty FMCG"
+    weighting_note: "full 15-stock index, as of 2026-09-23"
+    constituents: [ITC, HINDUNILVR, NESTLEIND, TATACONSUM, VBL, BRITANNIA, MARICO, UNITDSPR, RADICO, GODREJCP, DABUR, COLPAL, PATANJALI, UBL, EMAMILTD]
+    etf_proxy: null
+  - name: "Nifty Pharma"
+    weighting_note: "full 20-stock index, as of 2026-09-23"
+    constituents: [SUNPHARMA, DIVISLAB, TORNTPHARM, ZYDUSLIFE, CIPLA, LAURUSLABS, MANKIND, DRREDDY, AUROPHARMA, LUPIN, GLENMARK, ALKEM, BIOCON, ABBOTINDIA, IPCALAB, GLAND, AJANTPHARM, WOCKPHARMA, SAILIFE, PPLPHARMA]  # SAILIFE = Sai Life Sciences (IPO'd 2025, short history); PPLPHARMA = Piramal Pharma
+    etf_proxy: "PHARMABEES.NS"
+  - name: "Nifty Auto"
+    weighting_note: "full 15-stock index, as of 2026-09-23"
+    constituents: [M&M, MARUTI, "BAJAJ-AUTO", EICHERMOT, TVSMOTOR, MOTHERSON, ASHOKLEY, HEROMOTOCO, TMPV, BHARATFORG, BOSCHLTD, SONACOMS, TIINDIA, UNOMINDA, EXIDEIND]
+    note: "Tata Motors was renamed Tata Motors Passenger Vehicles (ticker TMPV) at the Oct 2025 demerger, carrying its full price history since the old TATAMOTORS ticker was retired on Yahoo Finance — verified TMPV.NS has continuous data back to 2014. The new commercial-vehicle spinoff (TMCV, listed Nov 2025) is a separate, much shorter series and is NOT included here."
+    etf_proxy: null
+  - name: "Nifty Energy"
+    weighting_note: "PARTIAL — index has 40 constituents (oil/gas + power + capital goods); listing only the largest weights actually confirmed. Verify the rest from the official factsheet before finalizing."
+    constituents: [RELIANCE, ADANIPOWER, NTPC, ONGC, COALINDIA, POWERGRID, ADANIGREEN, IOC]
+    etf_proxy: null
+  - name: "Nifty Metal"
+    weighting_note: "12 of ~15 constituents confirmed, as of 2026-08-13"
+    constituents: [ADANIENT, JSWSTEEL, HINDZINC, HINDALCO, TATASTEEL, JINDALSTEL, VEDL, LLOYDSME, NATIONALUM, NMDC, SAIL, JSL]
+    etf_proxy: null
+  - name: "Nifty Realty"
+    weighting_note: "full 10-stock index, as of 2026-08-03"
+    constituents: [DLF, LODHA, PRESTIGE, PHOENIXLTD, OBEROIRLTY, GODREJPROP, ANANTRAJ, BRIGADE, SOBHA]
+    etf_proxy: null
+  - name: "Nifty Financial Services"
+    weighting_note: "full 20-stock index (FINNIFTY 25/50), as of 2026-09-23"
+    constituents: [HDFCBANK, ICICIBANK, SBIN, BAJFINANCE, KOTAKBANK, AXISBANK, BAJAJFINSV, SHRIRAMFIN, SBILIFE, JIOFIN, CHOLAFIN, BSE, HDFCLIFE, MUTHOOTFIN, PFC, RECLTD, ICICIGI, ICICIPRULI, SBICARD, LICHSGFIN]
+    note: "Heavy overlap with Nifty Bank (HDFCBANK, ICICIBANK, SBIN, KOTAKBANK, AXISBANK appear in both) — expect high correlation between the Sect+Bank and Sect+FinServices legs; consider whether the original paper's 9-sector orthogonality assumption still holds for India."
+    etf_proxy: null
+
+commodities:
+  # DATA SOURCE (confirmed, applies to all three classes): neither MCX nor NCDEX
+  # expose a public historical-data REST API or a ready-made continuous-contract
+  # series (unlike Yahoo Finance's continuous front-month futures used in the
+  # original paper). Both exchanges publish an end-of-day "bhavcopy" (per-contract
+  # OHLC + OI + volume) as a daily CSV/XLS file:
+  #   MCX:   https://www.mcxindia.com/market-data/bhavcopy
+  #   NCDEX: https://www.ncdex.com/markets/bhavcopy
+  # MCX also states bulk multi-year historical data is "provided on request" (not
+  # self-serve for >1yr). Practical path: (a) scrape daily bhavcopy files across
+  # the full date range (see e.g. github.com/Khushalsawant/Download-Bhavcopy-from-MCX_India
+  # and github.com/rajamohanty/NCDEX-Bhavcopy-Web-Scrapper as references) and
+  # persist them, or (b) use a paid vendor (Global Datafeeds, Truedata, Kite
+  # Connect historical API) for cleaner bulk history. Either way, a CONTINUOUS
+  # contract must then be constructed in-house: each underlying trades as monthly
+  # (or near/mid/far) expiries, so build_continuous_series() must roll from the
+  # expiring near-month contract to the next one on a fixed rule (e.g. N trading
+  # days before expiry) and back-adjust (ratio or additive) historical prices to
+  # remove the price jump at rollover — see src/data_collection/fetch_commodity_data.py.
+
+  energy:
+    # MCX's energy segment is NOT limited to Crude Oil + Natural Gas as originally
+    # assumed — it also lists Brent Crude, Gasoline, Heating Oil, and Furnace Oil —
+    # but liquidity is heavily concentrated in Crude Oil and Natural Gas; the other
+    # four are comparatively thin and their continuous-history availability via
+    # bhavcopy needs to be checked before relying on them. This is the one open
+    # question in the commodity universe (see chat) — the two safest, most liquid
+    # picks are listed first.
+    - name: "Crude Oil"
+      exchange: "MCX"
+      symbol: "CRUDEOIL"
+      liquidity: high
+    - name: "Natural Gas"
+      exchange: "MCX"
+      symbol: "NATURALGAS"
+      liquidity: high
+    - name: "Brent Crude"
+      exchange: "MCX"
+      symbol: "BRCRUDEOIL"
+      liquidity: "low/uncertain — verify continuous bhavcopy history before using"
+    - name: "Gasoline"
+      exchange: "MCX"
+      symbol: "GASOLINE"
+      liquidity: "low/uncertain — verify continuous bhavcopy history before using; Heating Oil (HEATINGOIL) and Furnace Oil (FURNACEOIL) are alternates if this one lacks history"
+  metals:
+    # Confirmed liquid, standard MCX metal futures — no substitution needed.
+    - name: "Gold"
+      exchange: "MCX"
+      symbol: "GOLD"
+    - name: "Silver"
+      exchange: "MCX"
+      symbol: "SILVER"
+    - name: "Copper"
+      exchange: "MCX"
+      symbol: "COPPER"
+    - name: "Zinc"
+      exchange: "MCX"
+      symbol: "ZINC"
+  agriculture:
+    # NCDEX is the standard home for these — no substitution needed, but confirm
+    # bhavcopy history length per contract (guar seed/cotton have had exchange
+    # trading suspensions in the past, e.g. guar seed circuit halts in 2014-2016).
+    - name: "Soybean"
+      exchange: "NCDEX"
+      symbol: "SOYBEAN"
+    - name: "Mustard Seed (RM Seed)"
+      exchange: "NCDEX"
+      symbol: "RMSEED"
+    - name: "Cotton (Kapas)"
+      exchange: "NCDEX"
+      symbol: "KAPAS"
+    - name: "Guar Seed"
+      exchange: "NCDEX"
+      symbol: "GUARSEED"
+
+sentiment_source:
+  # SELECTED: self-built pipeline (no licensed MarketPsych feed).
+  selected: self_built
+  description: >
+    Scrape Indian financial news/social sources (Economic Times, Moneycontrol,
+    Business Standard, Mint; X/StockTwits-India optional) and score with FinBERT
+    or an LLM to derive the 9 sentiment indicators (config/indicators.yaml).
+  sources:
+    - "Economic Times"
+    - "Moneycontrol"
+    - "Business Standard"
+    - "Mint"
+  scoring_model: "TODO: FinBERT (finance-tuned) vs. LLM-based scoring — decide during implementation"
+
+market_cap_proxy_for_futures: "normalized average daily traded (dollar/rupee) volume"
